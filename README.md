@@ -6,7 +6,7 @@
 
 ## 설치
 
-1. [Releases](../../releases)에서 `mm_korean_translation.nrm`을 받습니다.
+1. **[mm_korean_translation.nrm 다운로드](https://github.com/mola00074-rgb/mm-korean-patch/raw/main/release/mm_korean_translation.nrm)** (v1.0.0)
 2. 리컴프를 실행한 뒤 파일을 게임 창에 끌어다 놓거나 **Mods → Install Mods**로 설치합니다.
    - 직접 넣으려면 `%LOCALAPPDATA%\Zelda64Recompiled\mods` (Linux: `~/.config/Zelda64Recompiled/mods`)에 복사합니다.
 3. Mods 목록에서 **무쥬라의 가면 한글 패치**를 켜고 게임을 시작합니다.
@@ -32,6 +32,7 @@
 
 | 경로 | 내용 |
 |---|---|
+| `release/mm_korean_translation.nrm` | 완성된 한글 패치 모드 |
 | `src/kr_patch.c` | 후킹 코드 |
 | `src/kr_data.c/.h` | 생성된 메시지·글리프 데이터 (`tools/gen_c.py` 출력) |
 | `tools/ko/b00–b45.txt` | 번역 원고 (`@메시지ID` 다음 줄에 본문) |
