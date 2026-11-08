@@ -1,0 +1,23 @@
+*.d
+*.o
+*.elf
+*.bin
+*.exe
+*.dll
+*.lib
+*.pdb
+*.exp
+./funcs.h
+patches.map
+build/
+.vscode/settings.json
+
+# ROM / 추출 데이터 (저작물, 업로드 금지)
+*.z64
+*.n64
+*.v64
+tools/msgs.pkl
+tools/en/
+tools/fonts/
+tools/__pycache__/
+build/

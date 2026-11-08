@@ -1,0 +1,36 @@
+# Majora's Mask: Recompiled - Korean translation
+[manifest]
+id = "mm_korean_translation"
+version = "1.0.0"
+display_name = "무쥬라의 가면 한글 패치"
+description = """
+Translates the in-game dialogue and system messages of Majora's Mask into Korean (한국어). \
+Hangul glyphs are rendered from NanumGothic (SIL Open Font License).
+
+Item names on the pause screen, area title cards and other text drawn as textures remain in English."""
+short_description = "Korean translation of all dialogue"
+authors = [ "mola" ]
+game_id = "mm"
+minimum_recomp_version = "1.2.2"
+dependencies = [
+]
+optional_dependencies = [
+]
+native_libraries = [
+]
+
+[inputs]
+
+# Input elf file to generate a mod from.
+elf_path = "build/mod.elf"
+
+# Output mod filename.
+mod_filename = "mm_korean_translation"
+
+# Reference symbol files.
+func_reference_syms_file = "Zelda64RecompSyms/mm.us.rev1.syms.toml"
+data_reference_syms_files = [ "Zelda64RecompSyms/mm.us.rev1.datasyms.toml", "Zelda64RecompSyms/mm.us.rev1.datasyms_static.toml" ]
+
+# Additional files to include in the mod.
+additional_files = [ ]
+
