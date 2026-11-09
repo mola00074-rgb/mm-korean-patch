@@ -13,12 +13,24 @@
 #include "global.h"
 #include "recomputils.h"
 #include "kr_data.h"
+#include "kr_tex.h"
+
+void kr_insert_set_widths(void);
+void kr_insert_reset(void);
 
 extern f32 sNESFontWidths[160];
 
 #define MSG_ROM_START 0x00AD1000
 #define MSG_ROM_END 0x00B3A9F0
 #define MSG_BUF_SIZE 1280
+
+// Segment VROM addresses (US 1.0)
+#define ITEM_NAME_STATIC_VROM 0x00A27660
+#define MAP_NAME_STATIC_VROM 0x00A352F0
+#define DAYTELOP_STATIC_VROM 0x01ECA000
+
+static void* sDayRam = NULL;
+static s32 sDayPending = false;
 
 static void* sPendRam = NULL;
 static u32 sPendVrom = 0;
@@ -55,6 +67,11 @@ static const KrMsgEntry* kr_find(u32 off) {
 }
 
 RECOMP_HOOK("DmaMgr_RequestSync") void kr_dma_pre(void* ram, uintptr_t vrom, size_t size) {
+    sDayPending = false;
+    if ((vrom == DAYTELOP_STATIC_VROM) && (size >= 0x9B00)) {
+        sDayPending = true;
+        sDayRam = ram;
+    }
     if ((vrom >= MSG_ROM_START) && (vrom < MSG_ROM_END)) {
         sPending = true;
         sPendRam = ram;
@@ -71,6 +88,18 @@ RECOMP_HOOK("DmaMgr_RequestSync") void kr_dma_pre(void* ram, uintptr_t vrom, siz
 RECOMP_HOOK_RETURN("DmaMgr_RequestSync") void kr_dma_post(void) {
     const KrMsgEntry* e;
     u32 i;
+
+    if (sDayPending) {
+        // "Dawn of the ... Day" screen: 4 days x (left, right) 128x64 I4, then 3 x 144x32 I4 "hours remain".
+        sDayPending = false;
+        for (i = 0; i < 8; i++) {
+            kr_copy((u8*)sDayRam + i * 0x1000, kr_day_tex[i], 0x1000);
+        }
+        for (i = 0; i < 3; i++) {
+            kr_copy((u8*)sDayRam + 0x8000 + i * 0x900, kr_hours_tex[i], 0x900);
+        }
+        return;
+    }
 
     if (!sPending) {
         return;
@@ -102,7 +131,37 @@ RECOMP_HOOK_RETURN("DmaMgr_RequestSync") void kr_dma_post(void) {
 
 // Fixed advance for Hangul syllables.
 RECOMP_HOOK("Message_DecodeNES") void kr_decode_pre(PlayState* play) {
-    sNESFontWidths[KR_PLACEHOLDER - ' '] = KR_ADVANCE;
+    kr_insert_set_widths();
+    kr_insert_reset();
+}
+
+// Pause screen item / map point names are loaded from compressed archives one texture at a time.
+static uintptr_t sCmpVrom;
+static s32 sCmpId;
+static void* sCmpDst;
+static size_t sCmpSize;
+
+RECOMP_HOOK("CmpDma_LoadFile") void kr_cmpdma_pre(uintptr_t segmentVrom, s32 id, void* dst, size_t size) {
+    sCmpVrom = segmentVrom;
+    sCmpId = id;
+    sCmpDst = dst;
+    sCmpSize = size;
+}
+
+RECOMP_HOOK_RETURN("CmpDma_LoadFile") void kr_cmpdma_post(void) {
+    if ((sCmpDst == NULL) || (sCmpSize < 0x400) || (sCmpId < 0)) {
+        return;
+    }
+    if (sCmpVrom == ITEM_NAME_STATIC_VROM) {
+        if ((sCmpId < KR_ITEM_NAME_COUNT) && (kr_item_name_idx[sCmpId] >= 0)) {
+            kr_copy(sCmpDst, kr_item_name_tex[kr_item_name_idx[sCmpId]], 0x400);
+        }
+    } else if (sCmpVrom == MAP_NAME_STATIC_VROM) {
+        if ((sCmpSize == 0x400) && (sCmpId < KR_MAP_NAME_COUNT)) {
+            kr_copy(sCmpDst, kr_map_name_tex[sCmpId], 0x400);
+        }
+    }
+    sCmpDst = NULL;
 }
 
 static PlayState* sFontPlay;

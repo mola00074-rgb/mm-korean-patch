@@ -1,14 +1,14 @@
 # Majora's Mask: Recompiled - Korean translation
 [manifest]
 id = "mm_korean_translation"
-version = "1.0.0"
+version = "1.1.0"
 display_name = "무쥬라의 가면 한글 패치"
 description = """
-Translates the in-game dialogue and system messages of Majora's Mask into Korean (한국어). \
-Hangul glyphs are rendered from NanumGothic (SIL Open Font License).
-
-Item names on the pause screen, area title cards and other text drawn as textures remain in English."""
-short_description = "Korean translation of all dialogue"
+Translates the in-game dialogue and system messages of Majora's Mask into Korean (한국어), \
+including pause-screen item and map names, the "Dawn of the First Day" screen and words inserted by the game \
+(ordinals, hours, Rupees, owl statue destinations, mask code colours). \
+Hangul glyphs are rendered from NanumGothic (SIL Open Font License)."""
+short_description = "Korean translation of dialogue, item names and title screens"
 authors = [ "mola" ]
 game_id = "mm"
 minimum_recomp_version = "1.2.2"
