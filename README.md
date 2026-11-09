@@ -6,7 +6,7 @@
 
 ## 설치
 
-1. **[mm_korean_translation.nrm 다운로드](https://github.com/mola00074-rgb/mm-korean-patch/raw/main/release/mm_korean_translation.nrm)** (v1.1.0)
+1. **[mm_korean_translation.nrm 다운로드](https://github.com/mola00074-rgb/mm-korean-patch/raw/main/release/mm_korean_translation.nrm)** (v1.2.0)
 2. 리컴프를 실행한 뒤 파일을 게임 창에 끌어다 놓거나 **Mods → Install Mods**로 설치합니다.
    - 직접 넣으려면 `%LOCALAPPDATA%\Zelda64Recompiled\mods` (Linux: `~/.config/Zelda64Recompiled/mods`)에 복사합니다.
 3. Mods 목록에서 **무쥬라의 가면 한글 패치**를 켜고 게임을 시작합니다.
@@ -21,9 +21,14 @@
 - "첫째 날 새벽 / 남은 시간 72시간" 화면 (v1.1)
 - 게임 코드가 넣는 단어 (v1.1): 서수("3번째"), 남은 시간("24 시간"), 루피, 부엉이 석상 목적지, 거미 저택 가면 색깔 암호
 
-![텍스처 미리보기](docs/textures_preview.png)
+- 일시정지 화면 메뉴 제목(아이템 선택·지도·퀘스트 상태·가면), 버튼 안내, 던전 이름 (v1.2)
+- A/B 버튼 행동 표시(말하기·보기·공격 등), 시계의 날짜, C▲ "타틀" 표시 (v1.2)
+- 타이틀 화면 "START를 누르세요", 파일 선택·옵션 화면 전체, 게임 오버 "계속하시겠습니까?" (v1.2)
 
-**영어로 남는 부분**: 보스 등장 타이틀, 일시정지 화면 메뉴 제목·버튼 안내, 타이틀/파일 선택 화면, 엔딩 크레딧, 플레이어 이름.
+![텍스처 미리보기](docs/textures_preview.png)
+![메뉴 미리보기](docs/ui_preview.png)
+
+**영어로 남는 부분**: 보스 등장 타이틀, 타이틀 로고와 "GAME OVER" 글자, 컨트롤러 미연결 안내, 엔딩 크레딧, 플레이어 이름.
 
 ## 작동 방식
 
@@ -33,6 +38,7 @@
   - `Font_LoadCharNES`를 후킹해 그 자리에 16×16 I4 한글 글리프를 넣고, `sNESFontWidths[0x60]`을 15로 설정합니다.
 - `src/kr_insert.c`: 루피·부엉이 석상 지역명 함수를 교체하고, `Message_LoadCharNES`를 후킹해 서수·시간·색깔 이름을 한글로 바꿉니다.
 - 텍스처: `CmpDma_LoadFile`(아이템·지역 이름)과 `daytelop_static` DMA 뒤에 한글 텍스처(`src/kr_tex.c`, `tools/textures.py` 출력)를 덮어씁니다.
+- 메뉴 텍스처: `src/kr_ui_hooks.c`가 DMA로 읽어 온 인터페이스 세그먼트(`icon_item_jpn_static`, `do_action_static`, `title_static` 등)에 한글 텍스처(`src/kr_ui.c`, `tools/ui_textures.py` 출력)를 덮어쓰고, 타이틀 화면의 "PRESS START"는 `EnMag_DrawCharTexture`를 교체해 그립니다.
 - 한글 글리프 998자는 나눔고딕 ExtraBold(SIL OFL)로 렌더링했습니다.
 
 ## 저장소 구성
@@ -43,6 +49,8 @@
 | `src/kr_patch.c` | 메시지·텍스처 교체 후킹 |
 | `src/kr_insert.c` | 게임 코드가 넣는 단어 한글화 |
 | `src/kr_tex.c/.h` | 생성된 한글 텍스처 (`tools/textures.py` 출력) |
+| `src/kr_ui_hooks.c` | 메뉴·HUD·파일 선택·타이틀 화면 텍스처 교체 |
+| `src/kr_ui.c/.h` | 생성된 메뉴 텍스처 (`tools/ui_textures.py` 출력) |
 | `src/kr_data.c/.h` | 생성된 메시지·글리프 데이터 (`tools/gen_c.py` 출력) |
 | `tools/ko/b00–b45.txt` | 번역 원고 (`@메시지ID` 다음 줄에 본문) |
 | `tools/glossary.md` | 용어집 |
@@ -65,6 +73,7 @@ cd tools
 python3 verify_en.py              # 원문 메시지 표 생성 (msgs.pkl)
 python3 build_data.py --gen       # 번역 검증 후 src/kr_data.c 생성
 python3 textures.py               # 아이템·지역 이름, 날짜 화면 텍스처 생성 (src/kr_tex.c)
+python3 ui_textures.py            # 메뉴·파일 선택·타이틀 화면 텍스처 생성 (src/kr_ui.c)
 cd ..
 
 # 3) 모드를 빌드합니다.

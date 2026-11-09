@@ -17,6 +17,11 @@
 
 void kr_insert_set_widths(void);
 void kr_insert_reset(void);
+void kr_ui_apply(void* ram, uintptr_t vrom, size_t size);
+
+static void* sAnyRam;
+static uintptr_t sAnyVrom;
+static size_t sAnySize;
 
 extern f32 sNESFontWidths[160];
 
@@ -67,6 +72,9 @@ static const KrMsgEntry* kr_find(u32 off) {
 }
 
 RECOMP_HOOK("DmaMgr_RequestSync") void kr_dma_pre(void* ram, uintptr_t vrom, size_t size) {
+    sAnyRam = ram;
+    sAnyVrom = vrom;
+    sAnySize = size;
     sDayPending = false;
     if ((vrom == DAYTELOP_STATIC_VROM) && (size >= 0x9B00)) {
         sDayPending = true;
@@ -88,6 +96,10 @@ RECOMP_HOOK("DmaMgr_RequestSync") void kr_dma_pre(void* ram, uintptr_t vrom, siz
 RECOMP_HOOK_RETURN("DmaMgr_RequestSync") void kr_dma_post(void) {
     const KrMsgEntry* e;
     u32 i;
+
+    // Interface textures (pause menu, file select, HUD labels)
+    kr_ui_apply(sAnyRam, sAnyVrom, sAnySize);
+    sAnySize = 0;
 
     if (sDayPending) {
         // "Dawn of the ... Day" screen: 4 days x (left, right) 128x64 I4, then 3 x 144x32 I4 "hours remain".
